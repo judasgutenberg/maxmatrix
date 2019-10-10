@@ -4,7 +4,7 @@ This is based on Xantohara's character editor:
 
 https://xantorohara.github.io/led-matrix-editor/
 
-which wasn't presented as an easy download, though I've been able to reconstruct it here with my modifications.
+which wasn't presented as an easy download, though I've been able to reconstruct it here with my modifications and a minimal-viable JQuery (upon which it depends).
 
 The main change in this version is that I've added some Adobe-Photoshop-style tools allowing rotation and flipping of character images. All such operations can now also 
 be applied in bulk on all the characters in a character set.  This system assumes an eight by eight pixel grid (just like in the good
