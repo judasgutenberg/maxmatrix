@@ -6,46 +6,45 @@ $(function () {
     var $deleteButton = $('#delete-button');
     var $updateButton = $('#update-button');
 	
-	
     var $leds, $cols, $rows;
 
     var generator = {
-        tableCols: function () {
-            var out = ['<table id="cols-list"><tr>'];
-            for (var i = 1; i < 9; i++) {
-                out.push('<td class="item" data-col="' + i + '">' + i + '</td>');
-            }
-            out.push('</tr></table>');
-			 
-            return out.join('');
-        },
-        tableRows: function () {
-            var out = ['<table id="rows-list">'];
-            for (var i = 1; i < 9; i++) {
-                out.push('<tr><td class="item" data-row="' + i + '">' + i + '</td></tr>');
-            }
-            out.push('</table>');
-            return out.join('');
-        },
-        tableLeds: function () {
-            var out = ['<table id="leds-matrix">'];
-            for (var i = 1; i < 9; i++) {
-                out.push('<tr>');
-                for (var j = 1; j < 9; j++) {
-                    out.push('<td class="item" data-row="' + i + '" data-col="' + j + '"></td>');
-                }
-                out.push('</tr>');
-            }
-            out.push('</table>');
-			out.push(dimensionSelectors());
-            return out.join('');
-        }
-    };
+	tableCols: function () {
+	    var out = ['<table id="cols-list"><tr>'];
+	    for (var i = 1; i < 9; i++) {
+		out.push('<td class="item" data-col="' + i + '">' + i + '</td>');
+	    }
+	    out.push('</tr></table>');
 
-    var converter = {
-        patternToFrame: function (pattern) {
-            var out = ['<table class="frame" data-hex="' + pattern + '">'];
-            for (var i = 1; i < 9; i++) {
+	    return out.join('');
+	},
+	tableRows: function () {
+	    var out = ['<table id="rows-list">'];
+	    for (var i = 1; i < 9; i++) {
+		out.push('<tr><td class="item" data-row="' + i + '">' + i + '</td></tr>');
+	    }
+	    out.push('</table>');
+	    return out.join('');
+	},
+	tableLeds: function () {
+	    var out = ['<table id="leds-matrix">'];
+	    for (var i = 1; i < 9; i++) {
+		out.push('<tr>');
+		for (var j = 1; j < 9; j++) {
+		    out.push('<td class="item" data-row="' + i + '" data-col="' + j + '"></td>');
+		}
+		out.push('</tr>');
+	    }
+	    out.push('</table>');
+			out.push(dimensionSelectors());
+	    return out.join('');
+	}
+	};
+
+	var converter = {
+	patternToFrame: function (pattern) {
+	    var out = ['<table class="frame" data-hex="' + pattern + '">'];
+	    for (var i = 1; i < 9; i++) {
 				if(pattern) {
 					var byte = pattern.substr(-2 * i, 2);
 					byte = parseInt(byte, 16);
@@ -62,106 +61,104 @@ $(function () {
 				} else {
 					//console.log("oops");
 				}
-            }
-            out.push('</table>');
-            return out.join('');
-        },
-        patternsToCodeUint64Array: function (patterns) {
-            var out = ['const uint64_t IMAGES[] = {\n'];
+	    }
+	    out.push('</table>');
+	    return out.join('');
+	},
+	patternsToCodeUint64Array: function (patterns) {
+	    var out = ['const uint64_t IMAGES[] = {\n'];
 
-            for (var i = 0; i < patterns.length; i++) {
-                out.push('  0x');
-                out.push(patterns[i]);
-                out.push(',\n');
-            }
-            out.pop();
-            out.push('\n};\n');
-            out.push('const int IMAGES_LEN = sizeof(IMAGES)/8;\n');
+	    for (var i = 0; i < patterns.length; i++) {
+		out.push('  0x');
+		out.push(patterns[i]);
+		out.push(',\n');
+	    }
+	    out.pop();
+	    out.push('\n};\n');
+	    out.push('const int IMAGES_LEN = sizeof(IMAGES)/8;\n');
 
-            return out.join('');
-        },
-        patternsToCodeBytesArray: function (patterns) {
-            var out = ['const byte IMAGES[][8] = {\n'];
+	    return out.join('');
+	},
+	patternsToCodeBytesArray: function (patterns) {
+	    var out = ['const byte IMAGES[][8] = {\n'];
 
-            for (var i = 0; i < patterns.length; i++) {
-                out.push('{\n');
-                for (var j = 7; j >= 0; j--) {
-                    var byte = patterns[i].substr(2 * j, 2);
-                    byte = parseInt(byte, 16).toString(2);
-                    byte = ('00000000' + byte).substr(-8);
-                    byte = byte.split('').reverse().join('');
-                    out.push('  B');
-                    out.push(byte);
-                    out.push(',\n');
-                }
-                out.pop();
-                out.push('\n}');
-                out.push(',');
-            }
-            out.pop();
-            out.push('};\n');
-            out.push('const int IMAGES_LEN = sizeof(IMAGES)/8;\n');
-            return out.join('');
-        },
-        fixPattern: function (pattern) {
+	    for (var i = 0; i < patterns.length; i++) {
+		out.push('{\n');
+		for (var j = 7; j >= 0; j--) {
+		    var byte = patterns[i].substr(2 * j, 2);
+		    byte = parseInt(byte, 16).toString(2);
+		    byte = ('00000000' + byte).substr(-8);
+		    byte = byte.split('').reverse().join('');
+		    out.push('  B');
+		    out.push(byte);
+		    out.push(',\n');
+		}
+		out.pop();
+		out.push('\n}');
+		out.push(',');
+	    }
+	    out.pop();
+	    out.push('};\n');
+	    out.push('const int IMAGES_LEN = sizeof(IMAGES)/8;\n');
+	    return out.join('');
+	},
+	fixPattern: function (pattern) {
 			//console.log(pattern);
 			if(pattern) {
 				pattern = pattern.replace(/[^0-9a-fA-F]/g, '0');
 				return ('0000000000000000' + pattern).substr(-16);
 			}
-        },
-        fixPatterns: function (patterns) {
-            for (var i = 0; i < patterns.length; i++) {
-                patterns[i] = converter.fixPattern(patterns[i]);
-            }
-            return patterns;
-        }
-    };
-	
-
-	
-	function dimensionSelectors(matrixId) {
-		if(!matrixId) {
-			matrixId = Math.random();
-		}
-		var max = 10;
-		var types = ["horizontal", "vertical"];
-		var out = '';
-		for(var typeCursor = 0; typeCursor< types.length; typeCursor++) {
-			var name = types[typeCursor] + "-" + matrixId;
-			var onChange = 'dimensionChange(document.getElementById(\'' + name + '\').value)';
-			out += types[typeCursor]  + ':<SELECT onchange="'  + onChange +  '" name="' + name + '" id="' + name + '">';
-			for(var index = 0; index<max; index++) {
-				out += '<option style="color:#000000" value="' + index + '">' + index + '</option>\r\n';
-				
-			}
-			out += '</SELECT>\r\n';
-		}
-		return out;
+	},
+	fixPatterns: function (patterns) {
+	    for (var i = 0; i < patterns.length; i++) {
+		patterns[i] = converter.fixPattern(patterns[i]);
+	    }
+	    return patterns;
 	}
-	
-    function makeFrameElement(pattern) {
-		//console.log(pattern);
-        pattern = converter.fixPattern(pattern);
-        return $(converter.patternToFrame(pattern)).click(onFrameClick);
-    }
+};
 
-    function ledsToHex() {
-        var out = [];
-        for (var i = 1; i < 9; i++) {
-            var byte = [];
-            for (var j = 1; j < 9; j++) {
-                var active = $leds.find('.item[data-row=' + i + '][data-col=' + j + '] ').hasClass('active');
-                byte.push(active ? '1' : '0');
-            }
-            byte.reverse();
-            byte = parseInt(byte.join(''), 2).toString(16);
-            byte = ('0' + byte).substr(-2);
-            out.push(byte);
-        }
-        out.reverse();
-        $hexInput.val(out.join(''));
-    }
+function dimensionSelectors(matrixId) {
+	if(!matrixId) {
+		matrixId = Math.random();
+	}
+	var max = 10;
+	var types = ["horizontal", "vertical"];
+	var out = '';
+	for(var typeCursor = 0; typeCursor< types.length; typeCursor++) {
+		var name = types[typeCursor] + "-" + matrixId;
+		var onChange = 'dimensionChange(document.getElementById(\'' + name + '\').value)';
+		out += types[typeCursor]  + ':<SELECT onchange="'  + onChange +  '" name="' + name + '" id="' + name + '">';
+		for(var index = 0; index<max; index++) {
+			out += '<option style="color:#000000" value="' + index + '">' + index + '</option>\r\n';
+
+		}
+		out += '</SELECT>\r\n';
+	}
+	return out;
+}
+	
+function makeFrameElement(pattern) {
+	//console.log(pattern);
+	pattern = converter.fixPattern(pattern);
+	return $(converter.patternToFrame(pattern)).click(onFrameClick);
+}
+
+function ledsToHex() {
+	var out = [];
+	for (var i = 1; i < 9; i++) {
+	    var byte = [];
+	    for (var j = 1; j < 9; j++) {
+		var active = $leds.find('.item[data-row=' + i + '][data-col=' + j + '] ').hasClass('active');
+		byte.push(active ? '1' : '0');
+	    }
+	    byte.reverse();
+	    byte = parseInt(byte.join(''), 2).toString(16);
+	    byte = ('0' + byte).substr(-2);
+	    out.push(byte);
+	}
+	out.reverse();
+	$hexInput.val(out.join(''));
+}
 
     function hexInputToLeds() {
         var val = getInputHexValue();
